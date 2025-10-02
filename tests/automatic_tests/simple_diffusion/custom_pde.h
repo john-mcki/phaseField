@@ -123,6 +123,17 @@ private:
     const dealii::Point<dim, dealii::VectorizedArray<number>> &q_point_loc,
     const dealii::VectorizedArray<number>                     &element_volume,
     Types::Index solve_block) const override;
+
+  number radius =
+    this->get_user_inputs().get_user_constants().get_model_constant_double("radius");
+  number concentration_initial =
+    this->get_user_inputs().get_user_constants().get_model_constant_double("concentration_initial");
+  number concentration_ref =
+    this->get_user_inputs().get_user_constants().get_model_constant_double("concentration_ref");
+  number diffusivity =
+    this->get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");
+  number plate_width =
+    this->get_user_inputs().get_user_constants().get_model_constant_double("plate_width");
 };
 
 PRISMS_PF_END_NAMESPACE
