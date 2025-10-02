@@ -30,25 +30,20 @@ CustomPDE<dim, degree, number>::set_initial_condition(
     this->get_user_inputs().get_spatial_discretization().get_size()[0];
   //std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
   std::vector<double> center = {dim_size/2,dim_size/2};
-  const double radius = 15.0;
-  const double concentration = 0.1;
+  //const double radius = 5.0;
   double dist = 0.0;
   for (unsigned int i = 0; i < dim; i++)
     {
       dist += (point[i] - center[i]) * (point[i] - center[i]);
     }
   dist = std::sqrt(dist);
-  double domain_parameter_1 = 0.5 - 0.5*std::tanh((dist - radius));
+  double domain_parameter_1 = 0.5 - 0.5*std::tanh((dist - radius)); 
   double domain_parameter_2 = 1.0 - domain_parameter_1; //domain parameter for some material
-  double domain_parameter_3 = 1.0;
-  if (point[1] < 10.0)
-    {
-      domain_parameter_3 = 0.0; //domain material for bottom plate
-    }
-  double offset = 1e-10;
+  double domain_parameter_3 = 0.5 - 0.5*std::tanh(point[1]-plate_width);
+  double offset = 1e-6;
   if (index == 0)
     {
-      scalar_value = concentration * domain_parameter_1 + offset; //setting concentration of li
+      scalar_value = concentration_initial;//setting concentration of li
     }
   if (index == 1)
     {
@@ -56,6 +51,11 @@ CustomPDE<dim, degree, number>::set_initial_condition(
       scalar_value = domain_parameter_1 + offset;
     }
   if (index == 2)
+    {
+      //Setting the domain parameter
+      scalar_value = domain_parameter_2 + offset;
+    }
+  if (index == 3)
     {
       //Setting the domain parameter
       scalar_value = domain_parameter_3 + offset;
