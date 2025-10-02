@@ -38,9 +38,9 @@ CustomPDE<dim, degree, number>::set_initial_condition(
     }
   dist = std::sqrt(dist);
   double domain_parameter_1 = 0.5 - 0.5*std::tanh((dist - radius)); 
-  //double domain_parameter_2 = 1.0 - domain_parameter_1; //domain parameter for some material
-  //double domain_parameter_3 = 0.5 - 0.5*std::tanh(point[1]-plate_width);
-  double offset = 1e-4;
+  double domain_parameter_2 = 1.0 - domain_parameter_1; //domain parameter for some material
+  double domain_parameter_3 = 0.5 - 0.5*std::tanh(point[1]-plate_width);
+  double offset = 1e-6;
   if (index == 0)
     {
       scalar_value = concentration_initial;//setting concentration of li
@@ -50,7 +50,6 @@ CustomPDE<dim, degree, number>::set_initial_condition(
       //Setting the domain parameter
       scalar_value = domain_parameter_1 + offset;
     }
-/*
   if (index == 2)
     {
       //Setting the domain parameter
@@ -61,7 +60,6 @@ CustomPDE<dim, degree, number>::set_initial_condition(
       //Setting the domain parameter
       scalar_value = domain_parameter_3 + offset;
     }
-*/
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
