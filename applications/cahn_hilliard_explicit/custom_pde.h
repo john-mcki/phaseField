@@ -4,6 +4,7 @@
 #pragma once
 
 #include <prismspf/core/pde_operator.h>
+#include <prismspf/core/phase_field_tools.h>
 #include <prismspf/core/variable_attribute_loader.h>
 #include <prismspf/core/variable_attributes.h>
 
@@ -52,12 +53,16 @@ public:
   using VectorValue = dealii::Tensor<1, dim, dealii::VectorizedArray<number>>;
   using VectorGrad  = dealii::Tensor<2, dim, dealii::VectorizedArray<number>>;
   using VectorHess  = dealii::Tensor<3, dim, dealii::VectorizedArray<number>>;
+  using PDEOperator<dim, degree, number>::get_user_inputs;
+  using PDEOperator<dim, degree, number>::get_pf_tools;
+  using PDEOperator<dim, degree, number>::get_timestep;
 
   /**
    * @brief Constructor.
    */
-  explicit CustomPDE(const UserInputParameters<dim> &_user_inputs)
-    : PDEOperator<dim, degree, number>(_user_inputs)
+  explicit CustomPDE(const UserInputParameters<dim> &_user_inputs,
+                     PhaseFieldTools<dim>           &_pf_tools)
+    : PDEOperator<dim, degree, number>(_user_inputs, _pf_tools)
   {}
 
 private:
@@ -124,10 +129,8 @@ private:
     const dealii::VectorizedArray<number>                     &element_volume,
     Types::Index solve_block) const override;
 
-  number McV =
-    this->get_user_inputs().get_user_constants().get_model_constant_double("McV");
-  number KcV =
-    this->get_user_inputs().get_user_constants().get_model_constant_double("KcV");
+  number McV = get_user_inputs().get_user_constants().get_model_constant_double("McV");
+  number KcV = get_user_inputs().get_user_constants().get_model_constant_double("KcV");
 };
 
 PRISMS_PF_END_NAMESPACE

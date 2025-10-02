@@ -21,10 +21,6 @@
 #include <utility>
 #include <vector>
 
-#if DEAL_II_VERSION_MAJOR >= 9 && DEAL_II_VERSION_MINOR >= 7
-#  include <deal.II/base/exception_macros.h>
-#endif
-
 PRISMS_PF_BEGIN_NAMESPACE
 
 void
@@ -199,6 +195,14 @@ VariableAttributes::parse_dependencies(
 
   set_dependencies(raw_dependencies.dependencies_rhs, eval_flag_set_rhs, "RHS");
   set_dependencies(raw_dependencies.dependencies_lhs, eval_flag_set_lhs, "LHS");
+
+  for (const auto &[other_index, other_variable] : other_var_attributes)
+    {
+      if (raw_dependencies.nucleating_fields.contains(other_variable.name))
+        {
+          nucleation_indices.push_back(other_index);
+        }
+    }
 
   // Compute the dependency_set and simplified_dependency_set
   compute_dependency_set(other_var_attributes);

@@ -60,12 +60,16 @@ public:
   using VectorValue = dealii::Tensor<1, dim, dealii::VectorizedArray<number>>;
   using VectorGrad  = dealii::Tensor<2, dim, dealii::VectorizedArray<number>>;
   using VectorHess  = dealii::Tensor<3, dim, dealii::VectorizedArray<number>>;
+  using PDEOperator<dim, degree, number>::get_user_inputs;
+  using PDEOperator<dim, degree, number>::get_pf_tools;
+  using PDEOperator<dim, degree, number>::get_timestep;
 
   /**
    * @brief Constructor.
    */
-  explicit CustomPDE(const UserInputParameters<dim> &_user_inputs)
-    : PDEOperator<dim, degree, number>(_user_inputs)
+  explicit CustomPDE(const UserInputParameters<dim> &_user_inputs,
+                     PhaseFieldTools<dim>           &_pf_tools)
+    : PDEOperator<dim, degree, number>(_user_inputs, _pf_tools)
   {}
 
 private:
@@ -225,7 +229,7 @@ CustomPDE<dim, degree, number>::compute_explicit_rhs(
       ScalarGrad  mux = variable_list.template get_gradient<ScalarGrad>(n_copies + i);
 
       ScalarValue eq_n  = n;
-      ScalarGrad  eqx_n = -this->get_timestep() * mux;
+      ScalarGrad  eqx_n = -get_timestep() * mux;
 
       variable_list.set_value_term(i, eq_n);
       variable_list.set_gradient_term(i, eqx_n);
