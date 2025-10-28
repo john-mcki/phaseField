@@ -17,7 +17,7 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_name(0, "C");
   set_variable_type(0, Scalar);
   set_variable_equation_type(0, ExplicitTimeDependent);
-  set_dependencies_value_term_rhs(0, "C,p1");
+  set_dependencies_value_term_rhs(0, "C,p1,grad(p1)");
   set_dependencies_gradient_term_rhs(0, "grad(C),grad(p1)");
 
   set_variable_name(1, "p1");
@@ -65,7 +65,7 @@ CustomPDE<dim, degree, number>::compute_explicit_rhs(
   p1x_mag = std::sqrt(p1x_mag);
   //ScalarGrad n = p1x/p1x_mag;
   ScalarValue dt = this->get_timestep();
-  ScalarValue B_Neu = 0.1 * (concentration_ref - C);
+  ScalarValue B_Neu = -0.1 * (C - concentration_ref);
   ScalarValue C_term1 = (diffusivity/p1) * (p1x * Cx);
   ScalarValue C_term2 = (p1x_mag/p1) * diffusivity * B_Neu;
   ScalarValue eq_C = (C + (dt * (C_term1 + C_term2)));

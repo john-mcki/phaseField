@@ -4,6 +4,7 @@
 #pragma once
 
 #include <prismspf/core/pde_operator.h>
+#include <prismspf/core/phase_field_tools.h>
 #include <prismspf/core/variable_attribute_loader.h>
 #include <prismspf/core/variable_attributes.h>
 
@@ -52,12 +53,16 @@ public:
   using VectorValue = dealii::Tensor<1, dim, dealii::VectorizedArray<number>>;
   using VectorGrad  = dealii::Tensor<2, dim, dealii::VectorizedArray<number>>;
   using VectorHess  = dealii::Tensor<3, dim, dealii::VectorizedArray<number>>;
+  using PDEOperator<dim, degree, number>::get_user_inputs;
+  using PDEOperator<dim, degree, number>::get_pf_tools;
+  using PDEOperator<dim, degree, number>::get_timestep;
 
   /**
    * @brief Constructor.
    */
-  explicit CustomPDE(const UserInputParameters<dim> &_user_inputs)
-    : PDEOperator<dim, degree, number>(_user_inputs)
+  explicit CustomPDE(const UserInputParameters<dim> &_user_inputs,
+                     PhaseFieldTools<dim>           &_pf_tools)
+    : PDEOperator<dim, degree, number>(_user_inputs, _pf_tools)
   {}
 
 private:
@@ -125,15 +130,15 @@ private:
     Types::Index solve_block) const override;
 
   number radius =
-    this->get_user_inputs().get_user_constants().get_model_constant_double("radius");
+    get_user_inputs().get_user_constants().get_model_constant_double("radius");
   number concentration_initial =
-    this->get_user_inputs().get_user_constants().get_model_constant_double("concentration_initial");
+    get_user_inputs().get_user_constants().get_model_constant_double("concentration_initial");
   number concentration_ref =
-    this->get_user_inputs().get_user_constants().get_model_constant_double("concentration_ref");
+    get_user_inputs().get_user_constants().get_model_constant_double("concentration_ref");
   number diffusivity =
-    this->get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");
+    get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");
   number plate_width =
-    this->get_user_inputs().get_user_constants().get_model_constant_double("plate_width");
+    get_user_inputs().get_user_constants().get_model_constant_double("plate_width");
 };
 
 PRISMS_PF_END_NAMESPACE
