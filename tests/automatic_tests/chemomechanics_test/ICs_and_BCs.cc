@@ -47,21 +47,17 @@ CustomPDE<dim, degree, number>::set_initial_condition(
     }
   if (index == 1)
     {
-      //Setting the domain parameter
-      scalar_value = domain_parameter_1 + offset;
+      vector_component_value = 0.0; //initial displacement u
     }
-/*
   if (index == 2)
     {
-      //Setting the domain parameter
-      scalar_value = domain_parameter_2 + offset;
+      vector_component_value = 0.0;
     }
   if (index == 3)
     {
       //Setting the domain parameter
-      scalar_value = domain_parameter_3 + offset;
+      scalar_value = domain_parameter_1 + offset;
     }
-*/
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
