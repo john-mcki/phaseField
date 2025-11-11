@@ -74,8 +74,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   p1x_mag = std::sqrt(p1x_mag);
   ScalarValue dt = get_timestep();
   ScalarValue B_Neu = -0.1 * (C - concentration_ref);
-  ScalarValue C_term1 = (diffusivity) * (p1x * Cx);
-  ScalarValue C_term2 = (p1x_mag) * diffusivity * B_Neu;
+  ScalarValue C_term1 = (diffusivity/p1) * (p1x * Cx);
+  ScalarValue C_term2 = (p1x_mag/p1) * diffusivity * B_Neu;
 
   ScalarValue eq_C = C_old - C + (dt * (C_term1 + C_term2));
   ScalarGrad eq_Cx = -diffusivity * dt * Cx;
@@ -109,8 +109,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
     }
   p1x_mag = std::sqrt(p1x_mag);
   ScalarValue dt = get_timestep();
-  ScalarValue LHS_C_term1 = -1.0 * diffusivity * (p1x * change_Cx);
-  ScalarValue LHS_C_term2 = p1x_mag * 0.1 * diffusivity * change_C;
+  ScalarValue LHS_C_term1 = -1.0 * (diffusivity/p1) * (p1x * change_Cx);
+  ScalarValue LHS_C_term2 = (p1x_mag/p1) * 0.1 * diffusivity * change_C;
   ScalarValue eq_change_C = change_C + dt * (LHS_C_term1 + LHS_C_term2);
   ScalarGrad eq_change_Cx = change_Cx * diffusivity * dt;
 

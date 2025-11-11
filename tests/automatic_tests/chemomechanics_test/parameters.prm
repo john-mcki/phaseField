@@ -20,14 +20,20 @@ subsection output
 end
 
 set boundary condition for C = Natural
-set boundary condition for p1 = Natural
-#set boundary condition for p2 = Natural
-#set boundary condition for p3 = Natural
+set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Dirichlet: 0.0
+set boundary condition for u, y component = Natural, Dirichlet: 0.0, Dirichlet: 0.0, Dirichlet: 0.0
+set boundary condition for S, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Dirichlet: 0.0
+set boundary condition for S, y component = Natural, Dirichlet: 0.0, Dirichlet: 0.0, Dirichlet: 0.0
+set boundary condition for p = Natural
 set Model constant radius = 5.0, DOUBLE
 set Model constant concentration_initial = 1.0, DOUBLE
-set Model constant concentration_ref = 0.1, DOUBLE
+set Model constant C_ref = 0.1, DOUBLE
 set Model constant diffusivity = 0.1, DOUBLE
-set Model constant plate_width = 10.0, DOUBLE
+set Model constant Temp = 1.0, DOUBLE
+set Model constant R = 8.314, DOUBLE
+set Model constant omega = 0.3, DOUBLE
+set Model constant compliance = (22.5,0.3), isotropic elastic constants #MAY NEED ALTERING
+
 
 subsection linear solver parameters: C
   set tolerance type = AbsoluteResidual
