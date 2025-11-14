@@ -69,7 +69,7 @@ CustomPDE<dim, degree, number>::compute_explicit_rhs(
   ScalarValue C_term1 = (diffusivity/p1) * (p1x * Cx);
   ScalarValue C_term2 = (p1x_mag/p1) * diffusivity * B_Neu;
   ScalarValue eq_C = (C + (dt * (C_term1 + C_term2)));
-  ScalarGrad eq_Cx = (-diffusivity * dt * Cx);  
+  ScalarGrad eq_Cx = -diffusivity * dt * Cx;  
   //Evolving
   variable_list.set_value_term(0, eq_C);
   variable_list.set_gradient_term(0, eq_Cx);
