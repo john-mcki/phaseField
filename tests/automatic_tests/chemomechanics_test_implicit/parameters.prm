@@ -45,5 +45,5 @@ subsection linear solver parameters: u
   set tolerance type = AbsoluteResidual
   set tolerance value = 1e-9
   set max iterations = 10000
-  set preconditioner type = GMG
+  set preconditioner type = None
 end

@@ -28,8 +28,8 @@ CustomPDE<dim, degree, number>::set_initial_condition(
   //JM the space is a cube, so axis is not important
   const double dim_size = 
     this->get_user_inputs().get_spatial_discretization().get_size()[0];
-  std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
-  //std::vector<double> center = {dim_size/2,dim_size/2};
+  //std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
+  std::vector<double> center = {dim_size/2,dim_size/2};
   //const double radius = 5.0;
   double dist = 0.0;
   for (unsigned int i = 0; i < dim; i++)
