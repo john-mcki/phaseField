@@ -12,33 +12,39 @@
 PRISMS_PF_BEGIN_NAMESPACE
 
 void
-CustomAttributeLoader::load_variable_attributes()
+CustomAttributeLoader::load_variable_attributes() //TODO check dependencies and add solve block
 {
-  set_variable_name(0, "C");
+  set_variable_name(0, "C_new");
   set_variable_type(0, Scalar);
-  set_variable_equation_type(0, ImplicitTimeDependent);
-  set_dependencies_value_term_rhs(0, "C, old_1(C), grad(S), p, grad(p)");
-  set_dependencies_gradient_term_rhs(0, "grad(C), grad(S), grad(p)");
-  set_dependencies_value_term_lhs(0, "C,change(C),grad(S),p, grad(p)");
-  set_dependencies_gradient_term_lhs(0, "C,grad(change(C)),grad(S ),grad(p)");
+  set_variable_equation_type(0, TimeIndependent);
+  set_dependencies_value_term_rhs(0, "C_new, grad(C_new), C_old, grad(S), p, grad(p)");
+  set_dependencies_gradient_term_rhs(0, "C_new, grad(C_new), grad(S)");
+  set_dependencies_value_term_lhs(0, "change(C_new),C_old,grad(S),p, grad(p)");
+  set_dependencies_gradient_term_lhs(0, "grad(change(C_new)),C_old,grad(S),grad(p)");
+  set_solve_block(0, 2);
 
-  set_variable_name(1, "u");
-  set_variable_type(1, Vector);
-  set_variable_equation_type(1, TimeIndependent);
-  //set_dependencies_value_term_rhs(1, "");
-  set_dependencies_gradient_term_rhs(1,"grad(u),C,p");
-  //set_dependencies_value_term_lhs(1, "");
-  set_dependencies_gradient_term_lhs(1, "grad(change(u)),grad(p)");
+  set_variable_name(1, "C_old");
+  set_variable_type(1, Scalar);
+  set_variable_equation_type(1, ExplicitTimeDependent);
+  set_dependencies_value_term_rhs(1, "C_new");
+  set_solve_block(1, 3);
 
-  set_variable_name(2, "S");
-  set_variable_type(2, Scalar);
-  set_variable_equation_type(2, Auxiliary);
-  set_dependencies_value_term_rhs(2, "grad(u),C,p");
-  //set_dependencies_gradient_term_rhs(2,"grad(u),C,p"); //Double check gradient dependencies
+  set_variable_name(2, "u");
+  set_variable_type(2, Vector);
+  set_variable_equation_type(2, TimeIndependent);
+  set_dependencies_gradient_term_rhs(2,"grad(u),C_old,p");
+  set_dependencies_gradient_term_lhs(2, "grad(change(u)),p");
+  set_solve_block(2, 0);
 
-  set_variable_name(3, "p");
+  set_variable_name(3, "S");
   set_variable_type(3, Scalar);
-  set_variable_equation_type(3, Constant);
+  set_variable_equation_type(3, Auxiliary);
+  set_dependencies_value_term_rhs(3, "grad(u),C_old,p");
+  set_solve_block(3, 1);
+
+  set_variable_name(4, "p");
+  set_variable_type(4, Scalar);
+  set_variable_equation_type(4, Constant);
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
@@ -48,7 +54,12 @@ CustomPDE<dim, degree, number>::compute_explicit_rhs(
   [[maybe_unused]] const dealii::Point<dim, dealii::VectorizedArray<number>> &q_point_loc,
   [[maybe_unused]] const dealii::VectorizedArray<number> &element_volume,
   [[maybe_unused]] Types::Index                           solve_block) const
-{}
+{
+  if (solve_block == 3)
+    {
+      variable_list.set_value_term(1, variable_list.template get_value<ScalarValue>(0));
+    }
+}
 
 template <unsigned int dim, unsigned int degree, typename number>
 void
@@ -59,17 +70,18 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   [[maybe_unused]] Types::Index                           solve_block,
   [[maybe_unused]] Types::Index                           index) const
 {
-  if (index == 0)
+  
+  if ((index == 0) && (solve_block == 2)) //step 3: solve concentration, TODO: review B_neu for mechanics term
     {
       //Concentration, scalar value may not be needed
       ScalarValue C = variable_list.template get_value<ScalarValue>(0);
-      ScalarValue C_old = variable_list.template get_value<ScalarValue>(0, OldOne);
       ScalarGrad Cx = variable_list.template get_gradient<ScalarGrad>(0);
+      ScalarValue C_old = variable_list.template get_value<ScalarValue>(1);
       //Gradient of Hydrostatic Stress
-      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(2);
+      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(3);
       //Order Parameter
-      ScalarValue p = variable_list.template get_value<ScalarValue>(3);
-      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(3);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(4);
+      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(4);
       //Unit normal vector for Li concentration
       ScalarValue px_mag(1e-6); //Initial value is equal to offset
       for (unsigned int i = 0; i < dim; i++)
@@ -78,46 +90,43 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
         }
       px_mag = std::sqrt(px_mag);
       ScalarValue dt = this->get_timestep();
-      ScalarValue B_Neu = -0.1 * (C - C_ref) + Sx.norm_square()/diffusivity;
+      ScalarValue B_Neu = -0.1 * (C - C_ref);// + Sx.norm_square()/diffusivity; //TODO double check this line
       ScalarValue C_term1 = (diffusivity/p) * (px * Cx);
-      ScalarValue C_term2 = -px/p * Sx * (omega * C)/(R * Temp);
+      ScalarValue C_term2 = -px/p * Sx * (omega * C * diffusivity)/(R * Temp);
       ScalarValue C_term3 = (px_mag/p) * diffusivity * B_Neu;
       ScalarGrad Cx_term1 = -diffusivity * Cx;
-      ScalarGrad Cx_term2 = (omega * C)/(R * Temp) * Sx;
+      ScalarGrad Cx_term2 = (omega * C * diffusivity)/(R * Temp) * Sx;
       ScalarValue eq_C = C_old - C + (dt * (C_term1 + C_term2 + C_term3));
       ScalarGrad eq_Cx = dt * (Cx_term1 + Cx_term2); //double-check
 
       variable_list.set_value_term(0, eq_C);
       variable_list.set_gradient_term(0, eq_Cx);
     }
-  if (index == 1) //Implementing a displacement update segment, could be the wrong approach
+  if ((index == 2) && (solve_block == 0)) //Step 1: solve displacement using old C
     {
-      ScalarValue C = variable_list.template get_value<ScalarValue>(0);
-      VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(1);
+      ScalarValue C = variable_list.template get_value<ScalarValue>(1);
+      VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(2);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(4);
       for (unsigned int i = 0; i < dim; i++)
         {
           ux[i][i] -= omega/3 * (C - C_ref);
         }
       VectorGrad stress;
-      compute_stress<dim, ScalarValue>(compliance, ux, stress);
-      variable_list.set_gradient_term(1, -stress); //check sign if results are weird
+      compute_stress<dim, ScalarValue>(compliance, p * ux, stress);
+      variable_list.set_gradient_term(2, -stress); //check sign if results are weird
     }
-  if (index == 2)
+  if ((index == 3) && (solve_block == 1)) //Step 2: solve hydrostatic stress
     {
-      ScalarValue C = variable_list.template get_value<ScalarValue>(0);
-      VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(1);
+      ScalarValue C = variable_list.template get_value<ScalarValue>(1);
+      VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(2);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(4);
       //Grabbing hydrostatic stress
-      for (unsigned int i = 0; i < dim; i++)
-        {
-          ux[i][i] -= omega/3 * (C - C_ref);
-        }
       ScalarValue hydrostatic_stress(0.0);
-      //Turning the gradient into a divergence
       for (unsigned int i = 0; i < dim; i++)
         {
-          hydrostatic_stress += 22.5/3 * ux[i][i]; //22.5 is value in compliance tensor
-      }
-      variable_list.set_value_term(2, hydrostatic_stress);
+          hydrostatic_stress += 22.5/(1 - 2 * 0.3) * (ux[i][i] - omega/3 * (C - C_ref));
+        }
+      variable_list.set_value_term(3, p * hydrostatic_stress);
     }
 }
 
@@ -130,17 +139,17 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
   [[maybe_unused]] Types::Index                           solve_block,
   [[maybe_unused]] Types::Index                           index) const
 {
-  if (index == 0)
+  if ((index == 0) && (solve_block == 2)) //NOTE: same solve_block as rhs C solve
     {
       //Concentration to be changed
       ScalarValue change_C = variable_list.template get_value<ScalarValue>(0, Change);
       ScalarGrad change_Cx = variable_list.template get_gradient<ScalarGrad>(0, Change);
-      ScalarValue C = variable_list.template get_value<ScalarValue>(0);
+      ScalarValue C = variable_list.template get_value<ScalarValue>(1); //using c_old
       //Gradient of Hydrostatic Stress
-      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(2);
+      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(3);
       //Order Parameter, needed but not changed
-      ScalarValue p = variable_list.template get_value<ScalarValue>(3);
-      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(3);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(4);
+      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(4);
 
       //domain gradient magnitude
       ScalarValue px_mag(1e-6); //Initial value is equal to offset
@@ -150,23 +159,24 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
         }
       px_mag = std::sqrt(px_mag);
       ScalarValue dt = get_timestep();
-      ScalarValue LHS_C_term1 = -1.0 * (diffusivity/p) * (px * change_Cx);
-      ScalarValue LHS_C_term2 = px/p * omega/(R*Temp) * (Sx - 22.5 * C * omega * change_Cx); //22.5 found in compliance tensor
+      ScalarValue LHS_C_term1 = -(diffusivity/p) * (px * change_Cx);
+      ScalarValue LHS_C_term2 = px/p * (omega * diffusivity)/(R*Temp) * (Sx * change_C - (22.5/(1 - 2 * 0.3) * C * omega * change_Cx)); //22.5 found in compliance tensor
       ScalarValue LHS_C_term3 = (px_mag/p) * 0.1 * diffusivity * change_C;
       ScalarGrad LHS_Cx_term1 = diffusivity * change_Cx;
-      ScalarGrad LHS_Cx_term2 = omega/(R * Temp) * (Sx - (22.5 * C * omega * change_Cx));
+      ScalarGrad LHS_Cx_term2 = -(omega * diffusivity)/(R * Temp) * (Sx * change_C - (22.5/(1 - 2 * 0.3) * C * omega * change_Cx));
       ScalarValue eq_change_C = change_C + dt * (LHS_C_term1 + LHS_C_term2 + LHS_C_term3);
       ScalarGrad eq_change_Cx = dt * (LHS_Cx_term1 + LHS_Cx_term2);
 
       variable_list.set_value_term(0, eq_change_C, Change);
       variable_list.set_gradient_term(0, eq_change_Cx, Change);
     }
-  if (index == 1)
+  if ((index == 2) && (solve_block == 0))
     {
-      VectorGrad change_ux = variable_list.template get_symmetric_gradient<VectorGrad>(1, Change);
+      VectorGrad change_ux = variable_list.template get_symmetric_gradient<VectorGrad>(2, Change);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(4);
       VectorGrad stress;
-      compute_stress<dim, ScalarValue>(compliance, change_ux, stress);
-      variable_list.set_gradient_term(1, stress, Change);
+      compute_stress<dim, ScalarValue>(compliance, p * change_ux, stress);
+      variable_list.set_gradient_term(2, stress, Change);
     }
 }
 
