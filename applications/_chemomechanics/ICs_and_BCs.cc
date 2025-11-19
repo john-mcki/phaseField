@@ -29,8 +29,6 @@ CustomPDE<dim, degree, number>::set_initial_condition(
   const double dim_size = 
     this->get_user_inputs().get_spatial_discretization().get_size()[0];
   std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
-  //std::vector<double> center = {dim_size/2,dim_size/2};
-  //const double radius = 5.0;
   double dist = 0.0;
   for (unsigned int i = 0; i < dim; i++)
     {
@@ -41,21 +39,18 @@ CustomPDE<dim, degree, number>::set_initial_condition(
   double offset = 1e-4;
   if (index == 0)
     {
-      scalar_value = concentration_initial;//setting concentration of li
-    }
-  if (index == 1)
-    {
-      scalar_value = concentration_initial; //setting concentration of li
-    }
-  if (index == 2)
-    {
       vector_component_value = 0.0; //initial displacement u
+      //scalar_value = concentration_initial;//setting concentration of li
     }
-  if (index == 3)
+  if (index == 12)
     {
-      vector_component_value = 0.0;
+      scalar_value = concentration_initial;
     }
-  if (index == 4)
+  if (index == 13)
+    {
+      scalar_value = concentration_initial;
+    }
+  if (index == 14)
     {
       scalar_value = domain_parameter + offset;
     }

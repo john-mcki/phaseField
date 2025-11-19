@@ -1,6 +1,6 @@
-set dim = 2
-set global refinement = 7
-set degree = 2
+set dim = 3
+set global refinement = 5
+set degree = 1
 
 subsection Rectangular mesh
   set x size = 50.0
@@ -21,16 +21,12 @@ end
 
 set boundary condition for C_new = Natural
 set boundary condition for C_old = Natural
-#set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural, Natural, Natural
-#set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
-#set boundary condition for u, z component = Natural, Natural, Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
-set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
-set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
-#set boundary condition for u, x component = Natural
-#set boundary condition for u, y component = Natural
-#set boundary condition for u, z component = Natural
+set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural, Natural, Natural
+set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
+set boundary condition for u, z component = Natural, Natural, Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
 set boundary condition for S = Natural
 set boundary condition for p = Natural
+
 set Model constant radius = 5.0, DOUBLE
 set Model constant concentration_initial = 1.0, DOUBLE
 set Model constant C_ref = 0.1, DOUBLE
