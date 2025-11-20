@@ -116,10 +116,10 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
     }
   if ((index == 2) && (solve_block == 2)) //step 3: solve concentration, TODO: review B_neu for mechanics term
     {
+      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(1);
       ScalarValue C = variable_list.template get_value<ScalarValue>(2);
       ScalarGrad Cx = variable_list.template get_gradient<ScalarGrad>(2);
       ScalarValue C_old = variable_list.template get_value<ScalarValue>(3);
-      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(1);
       ScalarValue p = variable_list.template get_value<ScalarValue>(4);
       ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(4);
       ScalarValue px_mag(1e-6);
@@ -163,14 +163,14 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
   if ((index == 2) && (solve_block == 2)) //NOTE: same solve_block as rhs C solve
     {
       //Concentration to be changed
-      ScalarValue change_C = variable_list.template get_value<ScalarValue>(12, Change);
-      ScalarGrad change_Cx = variable_list.template get_gradient<ScalarGrad>(12, Change);
-      ScalarValue C = variable_list.template get_value<ScalarValue>(13); //using c_old
+      ScalarValue change_C = variable_list.template get_value<ScalarValue>(2, Change);
+      ScalarGrad change_Cx = variable_list.template get_gradient<ScalarGrad>(2, Change);
+      ScalarValue C = variable_list.template get_value<ScalarValue>(3); //using c_old
       //Gradient of Hydrostatic Stress
-      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(11);
+      ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(1);
       //Order Parameter, needed but not changed
-      ScalarValue p = variable_list.template get_value<ScalarValue>(14);
-      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(14);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(4);
+      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(4);
 
       //domain gradient magnitude
       ScalarValue px_mag(1e-6); //Initial value is equal to offset
@@ -213,8 +213,8 @@ CustomPDE<dim, degree, number>::compute_postprocess_explicit_rhs(
     stress_offdiag[0] = stress[0][1];
     stress_offdiag[1] = stress[0][2];
     stress_offdiag[2] = stress[1][2];
-    variable_list.set_value_term(8, stress_diag);
-    variable_list.set_value_term(9, stress_offdiag);
+    variable_list.set_value_term(5, stress_diag);
+    variable_list.set_value_term(6, stress_offdiag);
     ScalarGrad stress_eigs;
     for (unsigned int k = 0; k < stress[0][0].size(); ++k)
       {
@@ -232,7 +232,7 @@ CustomPDE<dim, degree, number>::compute_postprocess_explicit_rhs(
             stress_eigs[i][k] = stress_eigvals[i];
           }
       }
-    variable_list.set_value_term(10, stress_eigs);
+    variable_list.set_value_term(7, stress_eigs);
 }
 
 #include "custom_pde.inst"
