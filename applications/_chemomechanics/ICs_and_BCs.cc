@@ -42,15 +42,15 @@ CustomPDE<dim, degree, number>::set_initial_condition(
       vector_component_value = 0.0; //initial displacement u
       //scalar_value = concentration_initial;//setting concentration of li
     }
-  if (index == 12)
+  if (index == 2)
     {
       scalar_value = concentration_initial;
     }
-  if (index == 13)
+  if (index == 3)
     {
       scalar_value = concentration_initial;
     }
-  if (index == 14)
+  if (index == 4)
     {
       scalar_value = domain_parameter + offset;
     }
