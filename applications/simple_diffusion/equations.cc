@@ -17,23 +17,14 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_name(0, "C");
   set_variable_type(0, Scalar);
   set_variable_equation_type(0, ImplicitTimeDependent);
-  set_dependencies_value_term_rhs(0, "C, old_1(C), p1");
-  set_dependencies_gradient_term_rhs(0, "grad(C), grad(p1)");
-  set_dependencies_value_term_lhs(0, "change(C),p1");
-  set_dependencies_gradient_term_lhs(0, "grad(change(C)),grad(p1)");
+  set_dependencies_value_term_rhs(0, "C, old_1(C), p");
+  set_dependencies_gradient_term_rhs(0, "grad(C), grad(p)");
+  set_dependencies_value_term_lhs(0, "change(C),p");
+  set_dependencies_gradient_term_lhs(0, "grad(change(C)),grad(p)");
 
-  set_variable_name(1, "p1");
+  set_variable_name(1, "p");
   set_variable_type(1, Scalar);
   set_variable_equation_type(1, Constant);
-/*
-  set_variable_name(2, "p2");
-  set_variable_type(2, Scalar);
-  set_variable_equation_type(2, Constant);
-
-  set_variable_name(3, "p3");
-  set_variable_type(3, Scalar);
-  set_variable_equation_type(3, Constant);
-*/
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
@@ -62,20 +53,20 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   ScalarValue C_old = variable_list.template get_value<ScalarValue>(0,OldOne);
 
   //Order Parameter
-  ScalarValue p1 = variable_list.template get_value<ScalarValue>(1);
-  ScalarGrad p1x = variable_list.template get_gradient<ScalarGrad>(1);
+  ScalarValue p = variable_list.template get_value<ScalarValue>(1);
+  ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(1);
 
   //domain gradients and Neumann boundary condition
-  ScalarValue p1x_mag(1e-6); //Initial value is equal to offset
+  ScalarValue px_mag(1e-6); //Initial value is equal to offset
   for (unsigned int i = 0; i < dim; i++)
     {
-      p1x_mag += p1x[i] * p1x[i];
+      px_mag += px[i] * px[i];
     }
-  p1x_mag = std::sqrt(p1x_mag);
+  px_mag = std::sqrt(px_mag);
   ScalarValue dt = get_timestep();
   ScalarValue B_Neu = -0.1 * (C - concentration_ref);
-  ScalarValue C_term1 = (diffusivity/p1) * (p1x * Cx);
-  ScalarValue C_term2 = (p1x_mag/p1) * diffusivity * B_Neu;
+  ScalarValue C_term1 = (diffusivity/p) * (px * Cx);
+  ScalarValue C_term2 = (px_mag/p) * diffusivity * B_Neu;
 
   ScalarValue eq_C = C_old - C + (dt * (C_term1 + C_term2));
   ScalarGrad eq_Cx = -diffusivity * dt * Cx;
@@ -98,19 +89,19 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
   ScalarGrad change_Cx = variable_list.template get_gradient<ScalarGrad>(0, Change);
 
   //Order Parameter, needed but not changed
-  ScalarValue p1 = variable_list.template get_value<ScalarValue>(1);
-  ScalarGrad p1x = variable_list.template get_gradient<ScalarGrad>(1);
+  ScalarValue p = variable_list.template get_value<ScalarValue>(1);
+  ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(1);
 
   //domain gradient magnitude
-  ScalarValue p1x_mag(1e-6); //Initial value is equal to offset
+  ScalarValue px_mag(1e-6); //Initial value is equal to offset
   for (unsigned int i = 0; i < dim; i++)
     {
-      p1x_mag += p1x[i] * p1x[i];
+      px_mag += px[i] * px[i];
     }
-  p1x_mag = std::sqrt(p1x_mag);
+  px_mag = std::sqrt(px_mag);
   ScalarValue dt = get_timestep();
-  ScalarValue LHS_C_term1 = -1.0 * (diffusivity/p1) * (p1x * change_Cx);
-  ScalarValue LHS_C_term2 = (p1x_mag/p1) * 0.1 * diffusivity * change_C;
+  ScalarValue LHS_C_term1 = -1.0 * (diffusivity/p) * (px * change_Cx);
+  ScalarValue LHS_C_term2 = (px_mag/p) * 0.1 * diffusivity * change_C;
   ScalarValue eq_change_C = change_C + dt * (LHS_C_term1 + LHS_C_term2);
   ScalarGrad eq_change_Cx = change_Cx * diffusivity * dt;
 
