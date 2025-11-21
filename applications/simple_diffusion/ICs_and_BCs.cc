@@ -25,21 +25,16 @@ CustomPDE<dim, degree, number>::set_initial_condition(
   [[maybe_unused]] number                   &scalar_value,
   [[maybe_unused]] number                   &vector_component_value) const
 {
-  //JM the space is a cube, so axis is not important
   const double dim_size = 
     this->get_user_inputs().get_spatial_discretization().get_size()[0];
-  //std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
-  std::vector<double> center = {dim_size/2,dim_size/2};
-  //const double radius = 5.0;
+  std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
   double dist = 0.0;
   for (unsigned int i = 0; i < dim; i++)
     {
       dist += (point[i] - center[i]) * (point[i] - center[i]);
     }
   dist = std::sqrt(dist);
-  double domain_parameter_1 = 0.5 - 0.5*std::tanh((dist - radius)); 
-  //double domain_parameter_2 = 1.0 - domain_parameter_1; //domain parameter for some material
-  //double domain_parameter_3 = 0.5 - 0.5*std::tanh(point[1]-plate_width);
+  double domain_parameter = 0.5 - 0.5*std::tanh((dist - radius)); 
   double offset = 1e-4;
   if (index == 0)
     {
@@ -47,21 +42,13 @@ CustomPDE<dim, degree, number>::set_initial_condition(
     }
   if (index == 1)
     {
-      //Setting the domain parameter
-      scalar_value = domain_parameter_1 + offset;
+      scalar_value = concentration_initial;//setting concentration of li
     }
-/*
   if (index == 2)
     {
       //Setting the domain parameter
-      scalar_value = domain_parameter_2 + offset;
+      scalar_value = domain_parameter + offset;
     }
-  if (index == 3)
-    {
-      //Setting the domain parameter
-      scalar_value = domain_parameter_3 + offset;
-    }
-*/
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
