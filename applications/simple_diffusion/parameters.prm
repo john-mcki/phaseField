@@ -5,10 +5,10 @@ set degree = 1
 subsection Rectangular mesh
   set x size = 50.0
   set y size = 50.0
-  #set z size = 50.0
+  set z size = 50.0
   set x subdivisions = 1
   set y subdivisions = 1
-  #set z subdivisions = 1
+  set z subdivisions = 1
 end
 
 set time step = 0.1
@@ -20,6 +20,7 @@ subsection output
 end
 
 set boundary condition for C = Natural
+set boundary condition for C_old = Natural
 set boundary condition for p = Natural
 set Model constant radius = 7.50, DOUBLE
 set Model constant concentration_initial = 1.0, DOUBLE

@@ -137,8 +137,6 @@ private:
     get_user_inputs().get_user_constants().get_model_constant_double("concentration_ref");
   number diffusivity =
     get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");
-  number plate_width =
-    get_user_inputs().get_user_constants().get_model_constant_double("plate_width");
 };
 
 PRISMS_PF_END_NAMESPACE
