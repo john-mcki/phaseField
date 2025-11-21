@@ -1,5 +1,5 @@
 set dim = 3
-set global refinement = 5
+set global refinement = 6
 set degree = 1
 
 subsection Rectangular mesh
@@ -11,8 +11,8 @@ subsection Rectangular mesh
   set z subdivisions = 1
 end
 
-set time step = 0.01
-set number steps = 100000
+set time step = 0.1
+set number steps = 10000
 
 subsection output
   set condition = EQUAL_SPACING
