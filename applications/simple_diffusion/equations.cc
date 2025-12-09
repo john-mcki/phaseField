@@ -33,20 +33,11 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_type(2, Scalar);
   set_variable_equation_type(2, Constant);
 
-  set_variable_name(3, "p2");
+  set_variable_name(3, "C * p");
   set_variable_type(3, Scalar);
-  set_variable_equation_type(3, Constant);
-/*
-  set_variable_name(4, "f_tot");
-  set_variable_type(4, Scalar);
-  set_variable_equation_type(4, ExplicitTimeDependent);
-  set_dependencies_value_term_rhs(4, "C,p1");
-  set_is_postprocessed_field(4, true);
-    
-  set_variable_name(5, "f_eq");
-  set_variable_type(5, Scalar);
-  set_variable_equation_type(5, Constant);
-*/
+  set_variable_equation_type(3, ExplicitTimeDependent);
+  set_dependencies_value_term_rhs(3, "C,p");
+  set_is_postprocessed_field(3, true);
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
@@ -132,15 +123,10 @@ CustomPDE<dim, degree, number>::compute_postprocess_explicit_rhs(
   [[maybe_unused]] const dealii::VectorizedArray<number> &element_volume,
   [[maybe_unused]] Types::Index                           solve_block) const
 {
-  /*
-  using std::log;
-  ScalarValue conc = variable_list.template get_value<ScalarValue>(0);
-  ScalarValue p = variable_list.template get_value<ScalarValue>(2);
-  ScalarValue f_tot = (conc * p) * log(conc * p);
-  variable_list.set_value_term(3, conc * p);
-  variable_list.set_value_term(4, f_tot);
-  */
+    ScalarValue conc = variable_list.template get_value<ScalarValue>(0) * variable_list.template get_value<ScalarValue>(2); // Concentration * domain parameter
+    variable_list.set_value_term(3, conc);
 }
+
 #include "custom_pde.inst"
 
 PRISMS_PF_END_NAMESPACE
