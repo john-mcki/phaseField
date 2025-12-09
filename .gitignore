@@ -35,6 +35,7 @@ compile_commands.json
 # Executables
 main
 main-debug
+*.sh
 
 # Output files
 *.vtu

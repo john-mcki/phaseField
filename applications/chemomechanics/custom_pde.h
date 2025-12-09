@@ -143,6 +143,10 @@ private:
     get_user_inputs().get_user_constants().get_model_constant_double("R");
   number omega =
     get_user_inputs().get_user_constants().get_model_constant_double("omega");
+  number poisson =
+    get_user_inputs().get_user_constants().get_model_constant_double("poisson");
+  number youngs_modulus =
+    get_user_inputs().get_user_constants().get_model_constant_double("youngs_modulus");
   constexpr static unsigned int              CIJ_tensor_size = (2 * dim) - 1 + (dim / 3);
   dealii::Tensor<2, CIJ_tensor_size, number> compliance =
     get_user_inputs().get_user_constants().get_model_constant_elasticity_tensor(
