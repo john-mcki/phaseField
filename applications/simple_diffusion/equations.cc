@@ -32,6 +32,12 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_name(2, "p");
   set_variable_type(2, Scalar);
   set_variable_equation_type(2, Constant);
+
+  set_variable_name(3, "C * p");
+  set_variable_type(3, Scalar);
+  set_variable_equation_type(3, ExplicitTimeDependent);
+  set_dependencies_value_term_rhs(3, "C,p");
+  set_is_postprocessed_field(3, true);
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
@@ -116,7 +122,10 @@ CustomPDE<dim, degree, number>::compute_postprocess_explicit_rhs(
   [[maybe_unused]] const dealii::Point<dim, dealii::VectorizedArray<number>> &q_point_loc,
   [[maybe_unused]] const dealii::VectorizedArray<number> &element_volume,
   [[maybe_unused]] Types::Index                           solve_block) const
-{}
+{
+    ScalarValue conc = variable_list.template get_value<ScalarValue>(0) * variable_list.template get_value<ScalarValue>(2); // Concentration * domain parameter
+    variable_list.set_value_term(3, conc);
+}
 
 #include "custom_pde.inst"
 

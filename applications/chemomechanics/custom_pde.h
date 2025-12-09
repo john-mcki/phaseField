@@ -148,9 +148,9 @@ private:
   number youngs_modulus =
     get_user_inputs().get_user_constants().get_model_constant_double("youngs_modulus");
   constexpr static unsigned int              CIJ_tensor_size = (2 * dim) - 1 + (dim / 3);
-  dealii::Tensor<2, CIJ_tensor_size, number> compliance =
+  dealii::Tensor<2, CIJ_tensor_size, number> stiffness =
     get_user_inputs().get_user_constants().get_model_constant_elasticity_tensor(
-      "compliance");
+      "stiffness");
 };
 
 PRISMS_PF_END_NAMESPACE
