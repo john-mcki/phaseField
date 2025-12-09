@@ -63,6 +63,12 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_equation_type(7, ExplicitTimeDependent);
   set_dependencies_value_term_rhs(7,"grad(u)");
   set_is_postprocessed_field(7, true);
+
+  set_variable_name(8, "C * p");
+  set_variable_type(8, Scalar);
+  set_variable_equation_type(8, ExplicitTimeDependent);
+  set_dependencies_value_term_rhs(8, "C_new,p");
+  set_is_postprocessed_field(8, true);
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
@@ -131,8 +137,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
       ScalarValue dt = this->get_timestep();
       ScalarValue B_Neu = -0.01 * (1.0/diffusivity) * (C - C_ref);// + Sx.norm_square()/diffusivity; //TODO double check this line
       ScalarValue C_term1 = (diffusivity/p) * (px * Cx);
-      //ScalarValue C_term2 = -px/p * Sx * (omega * C * diffusivity)/(R * Temp);
-      ScalarValue C_term2 = -px/p * Sx * (omega * diffusivity)/(R * Temp); //C get's removed by way of different free-energy formulation
+      ScalarValue C_term2 = -px/p * Sx * (omega * C * diffusivity)/(R * Temp);
+      //ScalarValue C_term2 = -px/p * Sx * (omega * diffusivity)/(R * Temp); //C get's removed by way of different free-energy formulation
       ScalarValue C_term3 = (px_mag/p) * diffusivity * B_Neu;
       ScalarGrad Cx_term1 = -diffusivity * Cx;
       ScalarGrad Cx_term2 = (omega * C * diffusivity)/(R * Temp) * Sx;
@@ -234,6 +240,8 @@ CustomPDE<dim, degree, number>::compute_postprocess_explicit_rhs(
           }
       }
     variable_list.set_value_term(7, stress_eigs);
+    ScalarValue conc = variable_list.template get_value<ScalarValue>(2) * variable_list.template get_value<ScalarValue>(4); // Concentration * domain parameter
+    variable_list.set_value_term(8, conc);
 }
 
 #include "custom_pde.inst"
