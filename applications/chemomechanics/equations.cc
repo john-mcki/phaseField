@@ -101,7 +101,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
       ScalarValue p = variable_list.template get_value<ScalarValue>(4);
       for (unsigned int i = 0; i < dim; i++)
         {
-          ux[i][i] -= omega/3 * (C - C_ref); //units of length???
+          ux[i][i] -= omega/3 * (C - C_ref); //unitless
         }
       VectorGrad stress;
       compute_stress<dim, ScalarValue>(stiffness, p * ux, stress);
