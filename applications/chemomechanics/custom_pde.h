@@ -137,6 +137,8 @@ private:
     get_user_inputs().get_user_constants().get_model_constant_double("C_ref");
   number diffusivity =
     get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");
+  number kc =
+    get_user_inputs().get_user_constants().get_model_constant_double("kc");
   number Temp =
     get_user_inputs().get_user_constants().get_model_constant_double("Temp");
   number R =

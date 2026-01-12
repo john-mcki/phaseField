@@ -110,15 +110,20 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   if ((index == 1) && (solve_block == 1)) //Step 2: solve hydrostatic stress
     {
       VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(0);
-      ScalarValue C = variable_list.template get_value<ScalarValue>(3);
-      ScalarValue p = variable_list.template get_value<ScalarValue>(4);
+      //ScalarValue C = variable_list.template get_value<ScalarValue>(3);
+      //ScalarValue p = variable_list.template get_value<ScalarValue>(4);
       //Grabbing hydrostatic stress
       ScalarValue hydrostatic_stress(0.0);
+      // Double calculating
+      //for (unsigned int i = 0; i < dim; i++)
+      //  {
+      //    hydrostatic_stress += youngs_modulus/(1 - 2 * poisson) * (ux[i][i] - omega/3 * (C - C_ref));
+      //  }
       for (unsigned int i = 0; i < dim; i++)
         {
-          hydrostatic_stress += youngs_modulus/(1 - 2 * poisson) * (ux[i][i] - omega/3 * (C - C_ref));
+          hydrostatic_stress += ux[i][i];
         }
-      variable_list.set_value_term(1, p * hydrostatic_stress);
+      variable_list.set_value_term(1, hydrostatic_stress);
     }
   if ((index == 2) && (solve_block == 2)) //step 3: solve concentration, TODO: review B_neu for mechanics term
     {
@@ -135,11 +140,11 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
         }
       px_mag = std::sqrt(px_mag);
       ScalarValue dt = this->get_timestep();
-      ScalarValue B_Neu = -0.01 * (1.0/diffusivity) * (C - C_ref);// + Sx.norm_square()/diffusivity; //TODO double check this line
+      ScalarValue B_Neu = -kc * (C - C_ref);// + Sx.norm_square()/diffusivity; //TODO double check this line, k_c is currently hard-coded
       ScalarValue C_term1 = (diffusivity/p) * (px * Cx);
       ScalarValue C_term2 = -px/p * Sx * (omega * C * diffusivity)/(R * Temp);
       //ScalarValue C_term2 = -px/p * Sx * (omega * diffusivity)/(R * Temp); //C get's removed by way of different free-energy formulation
-      ScalarValue C_term3 = (px_mag/p) * diffusivity * B_Neu;
+      ScalarValue C_term3 = (px_mag/p) * B_Neu;
       ScalarGrad Cx_term1 = -diffusivity * Cx;
       ScalarGrad Cx_term2 = (omega * C * diffusivity)/(R * Temp) * Sx;
       ScalarValue eq_C = C_old - C + (dt * (C_term1 + C_term2 + C_term3));
@@ -189,7 +194,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
       ScalarValue dt = get_timestep();
       ScalarValue LHS_C_term1 = -(diffusivity/p) * (px * change_Cx);
       ScalarValue LHS_C_term2 = px/p * (omega * diffusivity)/(R*Temp) * (Sx * change_C - (youngs_modulus/(1 - 2 * poisson) * C * omega * change_Cx));//C term got removed in RHS needs to be removed here too, check your math
-      ScalarValue LHS_C_term3 = (px_mag/p) * 0.1 * diffusivity * change_C;
+      ScalarValue LHS_C_term3 = (px_mag/p) * kc * diffusivity * change_C;
       ScalarGrad LHS_Cx_term1 = diffusivity * change_Cx;
       ScalarGrad LHS_Cx_term2 = -(omega * diffusivity)/(R * Temp) * (Sx * change_C - (youngs_modulus/(1 - 2 * poisson) * C * omega * change_Cx));
       ScalarValue eq_change_C = change_C + dt * (LHS_C_term1 + LHS_C_term2 + LHS_C_term3);
