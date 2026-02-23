@@ -25,30 +25,46 @@ CustomPDE<dim, degree, number>::set_initial_condition(
   [[maybe_unused]] number                   &scalar_value,
   [[maybe_unused]] number                   &vector_component_value) const
 {
+  using std::log;
   const double dim_size = 
     this->get_user_inputs().get_spatial_discretization().get_size()[0];
-  std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
+  //std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
+  std::vector<double> center = {dim_size/2,dim_size/2};
   double dist = 0.0;
   for (unsigned int i = 0; i < dim; i++)
     {
       dist += (point[i] - center[i]) * (point[i] - center[i]);
     }
   dist = std::sqrt(dist);
-  double domain_parameter = 0.5 - 0.5*std::tanh((dist - radius)); 
+  double domain_parameter = 0.5 - 0.5*std::tanh((dist * dist - radius * radius)/radius); 
   double offset = 1e-4;
   if (index == 0)
     {
-      scalar_value = concentration_initial;//setting concentration of li
+      scalar_value = c_init;//setting concentration of li
     }
   if (index == 1)
     {
-      scalar_value = concentration_initial;//setting concentration of li
+      scalar_value = c_init;//setting concentration of li
     }
   if (index == 2)
     {
-      //Setting the domain parameter
       scalar_value = domain_parameter + offset;
     }
+  if (index == 3)
+    {
+      scalar_value = 1.0 - (domain_parameter - offset);
+    }
+  /*
+  if (index == 4)
+    {
+      double conc = c_init * (domain_parameter + offset);
+      scalar_value = conc * log(conc);
+    }
+  if (index == 5)
+    {
+      scalar_value = c_ref * log(c_ref);
+    }
+  */
 }
 
 template <unsigned int dim, unsigned int degree, typename number>

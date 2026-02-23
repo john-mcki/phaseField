@@ -131,10 +131,10 @@ private:
 
   number radius =
     get_user_inputs().get_user_constants().get_model_constant_double("radius");
-  number concentration_initial =
-    get_user_inputs().get_user_constants().get_model_constant_double("concentration_initial");
-  number concentration_ref =
-    get_user_inputs().get_user_constants().get_model_constant_double("concentration_ref");
+  number c_init =
+    get_user_inputs().get_user_constants().get_model_constant_double("c_init");
+  number c_ref =
+    get_user_inputs().get_user_constants().get_model_constant_double("c_ref");
   number diffusivity =
     get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");
 };

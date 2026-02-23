@@ -1,5 +1,5 @@
-set dim = 3
-set global refinement = 6
+set dim = 2
+set global refinement = 7
 set degree = 1
 
 subsection Rectangular mesh
@@ -12,7 +12,7 @@ subsection Rectangular mesh
 end
 
 set time step = 0.1
-set number steps = 10000
+set number steps = 100000
 
 subsection output
   set condition = EQUAL_SPACING
@@ -21,10 +21,11 @@ end
 
 set boundary condition for C = Natural
 set boundary condition for C_old = Natural
-set boundary condition for p = Natural
+set boundary condition for p1 = Natural
+set boundary condition for p2 = Natural
 set Model constant radius = 7.50, DOUBLE
-set Model constant concentration_initial = 1.0, DOUBLE
-set Model constant concentration_ref = 0.1, DOUBLE
+set Model constant c_init = 1.0, DOUBLE
+set Model constant c_ref = 0.1, DOUBLE
 set Model constant diffusivity = 0.1, DOUBLE
 
 subsection linear solver parameters: C
