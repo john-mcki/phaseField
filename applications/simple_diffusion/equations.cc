@@ -14,6 +14,7 @@ PRISMS_PF_BEGIN_NAMESPACE
 void
 CustomAttributeLoader::load_variable_attributes()
 {
+  /*
   set_variable_name(0, "C");
   set_variable_type(0, Scalar);
   set_variable_equation_type(0, TimeIndependent);
@@ -22,31 +23,30 @@ CustomAttributeLoader::load_variable_attributes()
   set_dependencies_value_term_lhs(0, "change(C),p1");
   set_dependencies_gradient_term_lhs(0, "grad(change(C)),grad(p1)");
   set_solve_block(0, 0);
+  */
 
+  set_variable_name(0, "C");
+  set_variable_type(0, FieldInfo::TensorRank::Scalar);
+  set_variable_equation_type(0, ImplicitTimeDependent);
+  set_dependencies_value_term_rhs(0, "C, old_1(C), p1");
+  set_dependencies_gradient_term_rhs(0, "grad(C), grad(p1)");
+  set_dependencies_value_term_lhs(0, "change(C),p1");
+  set_dependencies_gradient_term_lhs(0, "grad(change(C)),grad(p1)");
+
+  /*
   set_variable_name(1, "C_old");
   set_variable_type(1, Scalar);
   set_variable_equation_type(1, ExplicitTimeDependent);
   set_dependencies_value_term_rhs(1, "C");
-  set_solve_block(1, 1);
+  */
 
-  set_variable_name(2, "p1");
-  set_variable_type(2, Scalar);
+  set_variable_name(1, "p1");
+  set_variable_type(1, FieldInfo::TensorRank::Scalar);
+  set_variable_equation_type(1, Constant);
+
+  set_variable_name(2, "p2");
+  set_variable_type(2, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(2, Constant);
-
-  set_variable_name(3, "p2");
-  set_variable_type(3, Scalar);
-  set_variable_equation_type(3, Constant);
-/*
-  set_variable_name(4, "f_tot");
-  set_variable_type(4, Scalar);
-  set_variable_equation_type(4, ExplicitTimeDependent);
-  set_dependencies_value_term_rhs(4, "C,p1");
-  set_is_postprocessed_field(4, true);
-    
-  set_variable_name(5, "f_eq");
-  set_variable_type(5, Scalar);
-  set_variable_equation_type(5, Constant);
-*/
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
@@ -56,12 +56,7 @@ CustomPDE<dim, degree, number>::compute_explicit_rhs(
   [[maybe_unused]] const dealii::Point<dim, dealii::VectorizedArray<number>> &q_point_loc,
   [[maybe_unused]] const dealii::VectorizedArray<number> &element_volume,
   [[maybe_unused]] Types::Index                           solve_block) const
-{
-  if (solve_block == 1)
-    {
-      variable_list.set_value_term(1, variable_list.template get_value<ScalarValue>(0));
-    }
-}
+{}
 
 template <unsigned int dim, unsigned int degree, typename number>
 void
@@ -72,13 +67,13 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   [[maybe_unused]] Types::Index                           solve_block,
   [[maybe_unused]] Types::Index                           index) const
 {
-  if ((solve_block == 0) && (index == 0))
+  if (index == 0)
     {
       ScalarValue C = variable_list.template get_value<ScalarValue>(0);
       ScalarGrad Cx = variable_list.template get_gradient<ScalarGrad>(0);
-      ScalarValue C_old = variable_list.template get_value<ScalarValue>(1);
-      ScalarValue p = variable_list.template get_value<ScalarValue>(2);
-      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(2);
+      ScalarValue C_old = variable_list.template get_value<ScalarValue>(0,OldOne);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(1);
+      ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(1);
       ScalarValue px_mag(1e-6); 
       for (unsigned int i = 0; i < dim; i++)
         {
@@ -107,8 +102,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
 {
   ScalarValue change_C = variable_list.template get_value<ScalarValue>(0, Change);
   ScalarGrad change_Cx = variable_list.template get_gradient<ScalarGrad>(0, Change);
-  ScalarValue p = variable_list.template get_value<ScalarValue>(2);
-  ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(2);
+  ScalarValue p = variable_list.template get_value<ScalarValue>(1);
+  ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(1);
   ScalarValue px_mag(1e-6);
   for (unsigned int i = 0; i < dim; i++)
     {
@@ -131,16 +126,7 @@ CustomPDE<dim, degree, number>::compute_postprocess_explicit_rhs(
   [[maybe_unused]] const dealii::Point<dim, dealii::VectorizedArray<number>> &q_point_loc,
   [[maybe_unused]] const dealii::VectorizedArray<number> &element_volume,
   [[maybe_unused]] Types::Index                           solve_block) const
-{
-  /*
-  using std::log;
-  ScalarValue conc = variable_list.template get_value<ScalarValue>(0);
-  ScalarValue p = variable_list.template get_value<ScalarValue>(2);
-  ScalarValue f_tot = (conc * p) * log(conc * p);
-  variable_list.set_value_term(3, conc * p);
-  variable_list.set_value_term(4, f_tot);
-  */
-}
+{}
 #include "custom_pde.inst"
 
 PRISMS_PF_END_NAMESPACE

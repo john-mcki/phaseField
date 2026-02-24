@@ -42,29 +42,20 @@ CustomPDE<dim, degree, number>::set_initial_condition(
     {
       scalar_value = c_init;//setting concentration of li
     }
+/*
   if (index == 1)
     {
       scalar_value = c_init;//setting concentration of li
     }
-  if (index == 2)
+*/
+  if (index == 1)
     {
       scalar_value = domain_parameter + offset;
     }
-  if (index == 3)
+  if (index == 2)
     {
       scalar_value = 1.0 - (domain_parameter - offset);
     }
-  /*
-  if (index == 4)
-    {
-      double conc = c_init * (domain_parameter + offset);
-      scalar_value = conc * log(conc);
-    }
-  if (index == 5)
-    {
-      scalar_value = c_ref * log(c_ref);
-    }
-  */
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
