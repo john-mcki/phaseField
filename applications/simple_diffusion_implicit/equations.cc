@@ -14,17 +14,6 @@ PRISMS_PF_BEGIN_NAMESPACE
 void
 CustomAttributeLoader::load_variable_attributes()
 {
-  /*
-  set_variable_name(0, "C");
-  set_variable_type(0, Scalar);
-  set_variable_equation_type(0, TimeIndependent);
-  set_dependencies_value_term_rhs(0, "C, C_old, p1");
-  set_dependencies_gradient_term_rhs(0, "grad(C), grad(p1)");
-  set_dependencies_value_term_lhs(0, "change(C),p1");
-  set_dependencies_gradient_term_lhs(0, "grad(change(C)),grad(p1)");
-  set_solve_block(0, 0);
-  */
-
   set_variable_name(0, "C");
   set_variable_type(0, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(0, ImplicitTimeDependent);
@@ -32,13 +21,6 @@ CustomAttributeLoader::load_variable_attributes()
   set_dependencies_gradient_term_rhs(0, "grad(C), grad(p1)");
   set_dependencies_value_term_lhs(0, "change(C),p1");
   set_dependencies_gradient_term_lhs(0, "grad(change(C)),grad(p1)");
-
-  /*
-  set_variable_name(1, "C_old");
-  set_variable_type(1, Scalar);
-  set_variable_equation_type(1, ExplicitTimeDependent);
-  set_dependencies_value_term_rhs(1, "C");
-  */
 
   set_variable_name(1, "p1");
   set_variable_type(1, FieldInfo::TensorRank::Scalar);
