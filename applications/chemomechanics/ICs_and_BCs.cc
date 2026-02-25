@@ -25,7 +25,6 @@ CustomPDE<dim, degree, number>::set_initial_condition(
   [[maybe_unused]] number                   &scalar_value,
   [[maybe_unused]] number                   &vector_component_value) const
 {
-  //JM the space is a cube, so axis is not important
   const double dim_size = 
     this->get_user_inputs().get_spatial_discretization().get_size()[0];
   std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
@@ -35,22 +34,17 @@ CustomPDE<dim, degree, number>::set_initial_condition(
       dist += (point[i] - center[i]) * (point[i] - center[i]);
     }
   dist = std::sqrt(dist);
-  double domain_parameter = 0.5 - 0.5*std::tanh((dist - radius)); 
+  double domain_parameter = 0.5 - 0.5*std::tanh((dist * dist - radius * radius)/radius); 
   double offset = 1e-4;
   if (index == 0)
     {
       vector_component_value = 0.0; //initial displacement u
-      //scalar_value = concentration_initial;//setting concentration of li
     }
   if (index == 2)
     {
       scalar_value = concentration_initial;
     }
   if (index == 3)
-    {
-      scalar_value = concentration_initial;
-    }
-  if (index == 4)
     {
       scalar_value = domain_parameter + offset;
     }

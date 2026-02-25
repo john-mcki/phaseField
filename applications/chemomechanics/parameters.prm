@@ -19,19 +19,18 @@ subsection output
   set number = 100
 end
 
-set boundary condition for C_new = Natural
-set boundary condition for C_old = Natural
 set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural, Natural, Natural
 set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
 set boundary condition for u, z component = Natural, Natural, Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
 set boundary condition for S = Natural
+set boundary condition for C = Natural
 set boundary condition for p = Natural
 
 set Model constant radius = 7.5, DOUBLE
 set Model constant concentration_initial = 1.0, DOUBLE
 set Model constant C_ref = 0.1, DOUBLE
 set Model constant diffusivity = 0.1, DOUBLE
-#set Model constant kc = 0.1, DOUBLE
+set Model constant kc = 0.1, DOUBLE
 set Model constant Temp = 300.0, DOUBLE
 set Model constant R = 8.314, DOUBLE
 set Model constant omega = 0.3, DOUBLE
@@ -40,7 +39,7 @@ set Model constant youngs_modulus = 22.5, DOUBLE
 set Model constant stiffness = (22.5,0.3), isotropic elastic constants
 
 
-subsection linear solver parameters: C_new
+subsection linear solver parameters: C
   set tolerance type = AbsoluteResidual
   set tolerance value = 1e-6
   set max iterations = 100000
