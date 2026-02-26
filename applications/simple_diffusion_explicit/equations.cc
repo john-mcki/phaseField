@@ -48,7 +48,6 @@ CustomPDE<dim, degree, number>::compute_explicit_rhs(
       px_mag += px[i] * px[i];
     }
   px_mag = std::sqrt(px_mag);
-  //ScalarGrad n = p1x/p1x_mag;
   ScalarValue dt = this->get_timestep();
   ScalarValue B_Neu = -0.1 * (C - c_ref);
   ScalarValue C_term1 = (diffusivity/p) * (px * Cx);

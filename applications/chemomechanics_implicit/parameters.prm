@@ -1,5 +1,5 @@
-set dim = 3
-set global refinement = 6
+set dim = 2
+set global refinement = 7
 set degree = 1
 
 subsection Rectangular mesh
@@ -12,16 +12,18 @@ subsection Rectangular mesh
 end
 
 set time step = 0.1
-set number steps = 10000
+set number steps = 100000
 
 subsection output
   set condition = EQUAL_SPACING
   set number = 100
 end
 
-set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural, Natural, Natural
-set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
-set boundary condition for u, z component = Natural, Natural, Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
+#set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural, Natural, Natural
+#set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
+#set boundary condition for u, z component = Natural, Natural, Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
+set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
+set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
 set boundary condition for S = Natural
 set boundary condition for C = Natural
 set boundary condition for p = Natural
@@ -33,7 +35,7 @@ set Model constant diffusivity = 0.1, DOUBLE
 set Model constant kc = 0.1, DOUBLE
 set Model constant Temp = 300.0, DOUBLE
 set Model constant R = 8.314, DOUBLE
-set Model constant omega = 0.3, DOUBLE
+set Model constant omega = 1.0, DOUBLE
 set Model constant poisson = 0.3, DOUBLE
 set Model constant youngs_modulus = 22.5, DOUBLE
 set Model constant stiffness = (22.5,0.3), isotropic elastic constants
