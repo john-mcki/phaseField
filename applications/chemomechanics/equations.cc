@@ -90,7 +90,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
       //Concentration
       ScalarValue C = variable_list.template get_value<ScalarValue>(2);
       ScalarGrad Cx = variable_list.template get_gradient<ScalarGrad>(2);
-      ScalarValue C_old = variable_list.template get_value<ScalarValue>(2,OldOne);
+      ScalarValue C_old = variable_list.template get_value<ScalarValue>(2, OldOne);
       //Order Parameter
       ScalarValue p = variable_list.template get_value<ScalarValue>(3);
       ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(3);

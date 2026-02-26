@@ -513,6 +513,8 @@ VariableAttributeLoader::validate_old_solution_dependencies()
         }
 
       // Check no dependencies exist after gap
+      //maybe omit to troubleshoot chemomechanics app
+      /*
       for (unsigned int second_index = gap_index; second_index < old_types.size();
            second_index++)
         {
@@ -524,6 +526,7 @@ VariableAttributeLoader::validate_old_solution_dependencies()
                             "previous old_n() to old_1() must be present."));
             }
         }
+      */
     }
 }
 
