@@ -48,6 +48,10 @@ CustomPDE<dim, degree, number>::set_initial_condition(
     {
       scalar_value = domain_parameter + offset;
     }
+  if (index == 4)
+    {
+      scalar_value = 1.0 - (domain_parameter - offset);
+    }
 }
 
 template <unsigned int dim, unsigned int degree, typename number>

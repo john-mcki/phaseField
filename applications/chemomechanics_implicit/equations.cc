@@ -18,27 +18,31 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_type(0, FieldInfo::TensorRank::Vector);
   set_variable_equation_type(0, TimeIndependent);
   //set_dependencies_value_term_rhs(0, "");
-  set_dependencies_gradient_term_rhs(0,"grad(u),C,p");
+  set_dependencies_gradient_term_rhs(0,"grad(u),C,p1");
   //set_dependencies_value_term_lhs(0, "");
-  set_dependencies_gradient_term_lhs(0, "grad(change(u)),p");
+  set_dependencies_gradient_term_lhs(0, "grad(change(u)),p1");
 
   set_variable_name(1, "S");
   set_variable_type(1, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(1, Auxiliary);
-  set_dependencies_value_term_rhs(1, "grad(u),C,p");
+  set_dependencies_value_term_rhs(1, "grad(u),C,p1");
   //set_dependencies_gradient_term_rhs(1,"grad(u),C,p"); //Double check gradient dependencies
 
   set_variable_name(2, "C");
   set_variable_type(2, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(2, ImplicitTimeDependent);
-  set_dependencies_value_term_rhs(2, "C,old_1(C),grad(S),p,grad(p)");
-  set_dependencies_gradient_term_rhs(2, "C,grad(C),grad(S),grad(p)");
-  set_dependencies_value_term_lhs(2, "change(C),grad(S),p,grad(p)");
-  set_dependencies_gradient_term_lhs(2, "grad(change(C)),grad(S),grad(p)");
+  set_dependencies_value_term_rhs(2, "C,old_1(C),grad(S),p1,grad(p1)");
+  set_dependencies_gradient_term_rhs(2, "C,grad(C),grad(S),grad(p1)");
+  set_dependencies_value_term_lhs(2, "change(C),grad(S),p1,grad(p1)");
+  set_dependencies_gradient_term_lhs(2, "grad(change(C)),grad(S),grad(p1)");
 
-  set_variable_name(3, "p");
+  set_variable_name(3, "p1");
   set_variable_type(3, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(3, Constant);
+
+  set_variable_name(4, "p2");
+  set_variable_type(4, FieldInfo::TensorRank::Scalar);
+  set_variable_equation_type(4, Constant);
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
