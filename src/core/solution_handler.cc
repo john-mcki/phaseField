@@ -417,14 +417,7 @@ SolutionHandler<dim, number>::update(FieldSolveType field_solve_type,
   // Helper function to swap vectors for all dependency types
   auto swap_all_dependency_vectors =
     [this](Types::Index index, auto &new_vector, bool is_implicit = false)
-  auto swap_all_dependency_vectors =
-    [this](Types::Index index, auto &new_vector, bool is_implicit = false)
   {
-    if (!is_implicit)
-      {
-        new_vector->swap(
-          *(solution_set.at(std::make_pair(index, DependencyType::Normal))));
-      }
     if (!is_implicit)
       {
         new_vector->swap(
