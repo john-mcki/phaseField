@@ -28,26 +28,20 @@ CustomPDE<dim, degree, number>::set_initial_condition(
   using std::log;
   const double dim_size = 
     this->get_user_inputs().get_spatial_discretization().get_size()[0];
-  //std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
-  std::vector<double> center = {dim_size/2,dim_size/2};
+  std::vector<double> center = {dim_size/2,dim_size/2,dim_size/2};
+  //std::vector<double> center = {dim_size/2,dim_size/2};
   double dist = 0.0;
   for (unsigned int i = 0; i < dim; i++)
     {
       dist += (point[i] - center[i]) * (point[i] - center[i]);
     }
   dist = std::sqrt(dist);
-  double domain_parameter = 0.5 - 0.5*std::tanh((dist * dist - radius * radius)/radius); 
+  double domain_parameter = 0.5 - 0.5*std::tanh((dist * dist - radius * radius)/(2.0*radius)); 
   double offset = 1e-4;
   if (index == 0)
     {
-      scalar_value = c_init;//setting concentration of li
+      scalar_value = c_init * (domain_parameter + offset);//setting concentration of li
     }
-/*
-  if (index == 1)
-    {
-      scalar_value = c_init;//setting concentration of li
-    }
-*/
   if (index == 1)
     {
       scalar_value = domain_parameter + offset;
