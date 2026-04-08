@@ -65,12 +65,13 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
 {
   if (index == 0)
     {
+      //Update the displacement
       VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(0);
       ScalarValue C = variable_list.template get_value<ScalarValue>(2);
       ScalarValue p = variable_list.template get_value<ScalarValue>(3);
       for (unsigned int i = 0; i < dim; i++)
         {
-          ux[i][i] -= omega/3 * (C - C_ref);
+          ux[i][i] -= omega/(3*(youngs_modulus*100)) * (C - C_ref);
         }
       VectorGrad stress;
       compute_stress<dim, ScalarValue>(stiffness, p * ux, stress);
@@ -79,11 +80,20 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   // would grabbing the displacement term gradient be sufficient since it was just updated to be stress?
   if (index == 1)
     {
+      //Store the hydrostatic stress
       VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(0);
+      ScalarValue C = variable_list.template get_value<ScalarValue>(2);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(3);
+      for (unsigned int i = 0; i < dim; i++)
+        {
+          ux[i][i] -= omega/(3*(youngs_modulus*100)) * (C - C_ref);
+        }
+      VectorGrad stress;
+      compute_stress<dim, ScalarValue>(stiffness, p * ux, stress);
       ScalarValue hydrostatic_stress(0.0); //zeroing out S at every term may not be efficient
       for (unsigned int i = 0; i < dim; i++)
         {
-          hydrostatic_stress += 1.0/3 * ux[i][i];
+          hydrostatic_stress += 1.0/3 * stress[i][i];
         }
       variable_list.set_value_term(1, hydrostatic_stress);
     }

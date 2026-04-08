@@ -12,7 +12,7 @@ subsection Rectangular mesh
 end
 
 set time step = 0.1
-set number steps = 100000
+set number steps = 10000
 
 subsection output
   set condition = EQUAL_SPACING
@@ -36,7 +36,7 @@ set Model constant diffusivity = 0.1, DOUBLE
 set Model constant kc = 0.1, DOUBLE
 set Model constant Temp = 300.0, DOUBLE
 set Model constant R = 8.314, DOUBLE
-set Model constant omega = 1.0, DOUBLE
+set Model constant omega = 900.0, DOUBLE
 set Model constant poisson = 0.3, DOUBLE
 set Model constant youngs_modulus = 22.5, DOUBLE
 set Model constant stiffness = (22.5,0.3), isotropic elastic constants
