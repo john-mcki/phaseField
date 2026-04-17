@@ -135,6 +135,9 @@ private:
     get_user_inputs().get_user_constants().get_model_constant_double("concentration_initial");
   number C_ref =
     get_user_inputs().get_user_constants().get_model_constant_double("C_ref");
+  number i_0 =
+    get_user_inputs().get_user_constants().get_model_constant_double("i_0");
+
   number diffusivity =
     get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");
   number kc =
@@ -143,6 +146,8 @@ private:
     get_user_inputs().get_user_constants().get_model_constant_double("Temp");
   number R =
     get_user_inputs().get_user_constants().get_model_constant_double("R");
+  number F =
+    get_user_inputs().get_user_constants().get_model_constant_double("F");  
   number omega =
     get_user_inputs().get_user_constants().get_model_constant_double("omega");
   number poisson =

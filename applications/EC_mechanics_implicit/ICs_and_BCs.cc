@@ -40,9 +40,13 @@ CustomPDE<dim, degree, number>::set_initial_condition(
     {
       vector_component_value = 0.0; //initial displacement u
     }
+  //if (index == 2)
+  //  {
+  //    scalar_value = 0.0;
+  //  }
   if (index == 2)
     {
-      scalar_value = concentration_initial;
+      scalar_value = concentration_initial * (domain_parameter + offset) + (C_ref) * (1.0 - domain_parameter + offset);
     }
   if (index == 3)
     {

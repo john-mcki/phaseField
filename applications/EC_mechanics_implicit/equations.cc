@@ -28,12 +28,17 @@ CustomAttributeLoader::load_variable_attributes()
   set_dependencies_value_term_rhs(1, "grad(u),C,p1");
   //set_dependencies_gradient_term_rhs(1,"grad(u),C,p"); //Double check gradient dependencies
 
+  //set_variable_name(2, "react");
+  //set_variable_type(2, FieldInfo::TensorRank::Scalar);
+  //set_variable_equation_type(2, ExplicitTimeDependent);
+  //set_dependencies_value_term_rhs(2, "C,p1");
+
   set_variable_name(2, "C");
   set_variable_type(2, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(2, ImplicitTimeDependent);
   set_dependencies_value_term_rhs(2, "C,old_1(C),grad(S),p1,grad(p1)");
   set_dependencies_gradient_term_rhs(2, "C,grad(C),grad(S),grad(p1)");
-  set_dependencies_value_term_lhs(2, "change(C),grad(S),p1,grad(p1)");
+  set_dependencies_value_term_lhs(2, "C,change(C),grad(S),p1,grad(p1)");
   set_dependencies_gradient_term_lhs(2, "grad(change(C)),grad(S),grad(p1)");
 
   set_variable_name(3, "p1");
@@ -43,6 +48,12 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_name(4, "p2");
   set_variable_type(4, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(4, Constant);
+
+  set_variable_name(5,"particle_concentration");
+  set_variable_type(5, FieldInfo::TensorRank::Scalar);
+  set_variable_equation_type(5,ExplicitTimeDependent);
+  set_dependencies_value_term_rhs(5,"C,p1");
+  set_is_postprocessed_field(5,true);
 }
 
 template <unsigned int dim, unsigned int degree, typename number>
@@ -65,12 +76,13 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
 {
   if (index == 0)
     {
+      //Update the displacement
       VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(0);
       ScalarValue C = variable_list.template get_value<ScalarValue>(2);
       ScalarValue p = variable_list.template get_value<ScalarValue>(3);
       for (unsigned int i = 0; i < dim; i++)
         {
-          ux[i][i] -= omega/3 * (C - C_ref);
+          ux[i][i] -= omega/(3*(youngs_modulus*100)) * (C - C_ref);
         }
       VectorGrad stress;
       compute_stress<dim, ScalarValue>(stiffness, p * ux, stress);
@@ -79,11 +91,20 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   // would grabbing the displacement term gradient be sufficient since it was just updated to be stress?
   if (index == 1)
     {
+      //Store the hydrostatic stress
       VectorGrad ux = variable_list.template get_symmetric_gradient<VectorGrad>(0);
+      ScalarValue C = variable_list.template get_value<ScalarValue>(2);
+      ScalarValue p = variable_list.template get_value<ScalarValue>(3);
+      for (unsigned int i = 0; i < dim; i++)
+        {
+          ux[i][i] -= omega/(3*(youngs_modulus*100)) * (C - C_ref);
+        }
+      VectorGrad stress;
+      compute_stress<dim, ScalarValue>(stiffness, p * ux, stress);
       ScalarValue hydrostatic_stress(0.0); //zeroing out S at every term may not be efficient
       for (unsigned int i = 0; i < dim; i++)
         {
-          hydrostatic_stress += 1.0/3 * ux[i][i];
+          hydrostatic_stress += 1.0/3 * stress[i][i];
         }
       variable_list.set_value_term(1, hydrostatic_stress);
     }
@@ -91,6 +112,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
     {
       //Gradient of Hydrostatic Stress
       ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(1);
+      //Overpotential Field
+      //ScalarValue react = variable_list.template get_value<ScalarValue>(2);
       //Concentration
       ScalarValue C = variable_list.template get_value<ScalarValue>(2);
       ScalarGrad Cx = variable_list.template get_gradient<ScalarGrad>(2);
@@ -105,10 +128,9 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
         }
       px_mag = std::sqrt(px_mag);
       ScalarValue dt = this->get_timestep();
-      ScalarValue B_Neu = -kc * (C - C_ref);//for now there is no traction, only flux term is mass
       ScalarValue C_term1 = (diffusivity/p) * (px * Cx);
       ScalarValue C_term2 = -px/p * Sx * diffusivity * (omega * C)/(R * Temp);
-      ScalarValue C_term3 = (px_mag/p) * diffusivity * B_Neu;
+      ScalarValue C_term3 = (px_mag/p) * i_0/F * (std::sqrt(C_ref/C) - std::sqrt(C/C_ref)); //reaction rate
       ScalarGrad Cx_term1 = -diffusivity * Cx;
       ScalarGrad Cx_term2 = diffusivity * (omega * C)/(R * Temp) * Sx;
       ScalarValue eq_C = C_old - C + (dt * (C_term1 + C_term2 + C_term3));
@@ -139,6 +161,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
   if (index == 2)
     {
       //Concentration to be changed
+      ScalarValue C = variable_list.template get_value<ScalarValue>(2);
       ScalarValue change_C = variable_list.template get_value<ScalarValue>(2, Change);
       ScalarGrad change_Cx = variable_list.template get_gradient<ScalarGrad>(2, Change);
       //Gradient of Hydrostatic Stress
@@ -157,7 +180,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
       ScalarValue dt = get_timestep();
       ScalarValue LHS_C_term1 = -(diffusivity/p) * (px * change_Cx);
       ScalarValue LHS_C_term2 = (omega * diffusivity * change_C)/(R * Temp * p) * (px * Sx);
-      ScalarValue LHS_C_term3 = (px_mag/p) * kc * diffusivity * change_C;
+      //ScalarValue LHS_C_term3 = (px_mag/p) * kc * diffusivity * change_C; //No longer included due to change in boudnary condition
+      ScalarValue LHS_C_term3 = -(px_mag/p) * i_0/F * (5.0/2.0 * std::sqrt(C_ref/C) * change_C);
       ScalarGrad LHS_Cx_term1 = diffusivity * change_Cx;
       ScalarGrad LHS_Cx_term2 = (diffusivity * omega)/(R * Temp) * (Sx * change_C);
       ScalarValue eq_change_C = change_C + dt * (LHS_C_term1 + LHS_C_term2 + LHS_C_term3);
@@ -175,7 +199,11 @@ CustomPDE<dim, degree, number>::compute_postprocess_explicit_rhs(
   [[maybe_unused]] const dealii::Point<dim, dealii::VectorizedArray<number>> &q_point_loc,
   [[maybe_unused]] const dealii::VectorizedArray<number> &element_volume,
   [[maybe_unused]] Types::Index                           solve_block) const
-{}
+{
+  ScalarValue particle_concentration = variable_list.template get_value<ScalarValue>(2) * 
+                                        variable_list.template get_value<ScalarValue>(3); // Concentration * domain parameter
+  variable_list.set_value_term(5,particle_concentration);
+}
 
 #include "custom_pde.inst"
 
