@@ -137,6 +137,8 @@ private:
     get_user_inputs().get_user_constants().get_model_constant_double("C_ref");
   number i_0 =
     get_user_inputs().get_user_constants().get_model_constant_double("i_0");
+  number del_phi =
+    get_user_inputs().get_user_constants().get_model_constant_double("del_phi");
 
   number diffusivity =
     get_user_inputs().get_user_constants().get_model_constant_double("diffusivity");

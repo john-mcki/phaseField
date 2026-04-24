@@ -1,5 +1,5 @@
-set dim = 3
-set global refinement = 7
+set dim = 2
+set global refinement = 6
 set degree = 1
 
 subsection Rectangular mesh
@@ -19,11 +19,11 @@ subsection output
   set number = 100
 end
 
-set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural, Natural, Natural
-set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
-set boundary condition for u, z component = Natural, Natural, Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
-#set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
-#set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
+#set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural, Natural, Natural
+#set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
+#set boundary condition for u, z component = Natural, Natural, Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
+set boundary condition for u, x component = Dirichlet: 0.0, Dirichlet: 0.0, Natural, Natural
+set boundary condition for u, y component = Natural, Natural, Dirichlet: 0.0, Dirichlet: 0.0
 set boundary condition for S = Natural
 set boundary condition for C = Natural
 #set boundary condition for react = Natural
@@ -46,7 +46,8 @@ set Model constant youngs_modulus = 22.5, DOUBLE
 set Model constant stiffness = (22.5,0.3), isotropic elastic constants
 
 #Constants for EC
-set Model constant i_0 = 100.0, DOUBLE #exchange current density
+set Model constant i_0 = 10.0, DOUBLE
+set Model constant del_phi = 2.0, DOUBLE
 
 subsection linear solver parameters: C
   set tolerance type = AbsoluteResidual
