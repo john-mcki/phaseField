@@ -34,7 +34,7 @@ CustomPDE<dim, degree, number>::set_initial_condition(
       dist += (point[i] - center[i]) * (point[i] - center[i]);
     }
   dist = std::sqrt(dist);
-  double domain_parameter = 0.5 - 0.5*std::tanh((dist * dist - radius * radius)/radius); 
+  double domain_parameter = 0.5 - 0.5*std::tanh((dist * dist - radius * radius)/2.0*radius); 
   double offset = 1e-4;
   if (index == 0)
     {
