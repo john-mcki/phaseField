@@ -131,6 +131,10 @@ private:
 
   number radius =
     get_user_inputs().get_user_constants().get_model_constant_double("radius");
+  number offset =
+    get_user_inputs().get_user_constants().get_model_constant_double("offset");
+  number interface_width =
+    get_user_inputs().get_user_constants().get_model_constant_double("interface_width");
   number concentration_initial =
     get_user_inputs().get_user_constants().get_model_constant_double("concentration_initial");
   number C_ref =

@@ -121,7 +121,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
       //Order Parameter
       ScalarValue p = variable_list.template get_value<ScalarValue>(3);
       ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(3);
-      ScalarValue px_mag(1e-6); //Initial value is equal to offset
+      ScalarValue px_mag(offset); //Initial value is equal to offset
       for (unsigned int i = 0; i < dim; i++)
         {
           px_mag += px[i] * px[i];
@@ -171,7 +171,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
       ScalarGrad px = variable_list.template get_gradient<ScalarGrad>(3);
 
       //domain gradient magnitude
-      ScalarValue px_mag(1e-6); //Initial value is equal to offset
+      ScalarValue px_mag(offset); //Initial value is equal to offset
       for (unsigned int i = 0; i < dim; i++)
         {
           px_mag += px[i] * px[i];
