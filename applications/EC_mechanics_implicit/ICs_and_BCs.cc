@@ -34,22 +34,22 @@ CustomPDE<dim, degree, number>::set_initial_condition(
       dist += (point[i] - center[i]) * (point[i] - center[i]);
     }
   dist = std::sqrt(dist);
-  double domain_parameter = 0.5 - 0.5*std::tanh((dist * dist - radius * radius)/(interface_width * radius)); 
+  double domain_parameter = 0.5 * (1.0 + offset) - 0.5 * (1 - offset) * std::tanh((dist * dist - radius * radius)/(interface_width * radius)); 
   if (index == 0)
     {
       vector_component_value = 0.0; //initial displacement u
     }
   if (index == 2)
     {
-      scalar_value = concentration_initial * (domain_parameter + offset) + (C_ref) * (1.0 - domain_parameter + offset);
+      scalar_value = concentration_initial * domain_parameter + (C_ref) * (1.0 - domain_parameter);
     }
   if (index == 3)
     {
-      scalar_value = domain_parameter + offset;
+      scalar_value = domain_parameter;
     }
   if (index == 4)
     {
-      scalar_value = 1.0 - (domain_parameter - offset);
+      scalar_value = 1.0 - domain_parameter;
     }
 }
 
