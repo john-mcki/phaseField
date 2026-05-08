@@ -36,9 +36,9 @@ CustomAttributeLoader::load_variable_attributes()
   set_variable_name(2, "C");
   set_variable_type(2, FieldInfo::TensorRank::Scalar);
   set_variable_equation_type(2, ImplicitTimeDependent);
-  set_dependencies_value_term_rhs(2, "C,old_1(C),grad(S),p1,grad(p1)");
+  set_dependencies_value_term_rhs(2, "C,old_1(C),S,grad(S),p1,grad(p1)");
   set_dependencies_gradient_term_rhs(2, "C,grad(C),grad(S),grad(p1)");
-  set_dependencies_value_term_lhs(2, "C,change(C),grad(S),p1,grad(p1)");
+  set_dependencies_value_term_lhs(2, "C,change(C),S,grad(S),p1,grad(p1)");
   set_dependencies_gradient_term_lhs(2, "grad(change(C)),grad(S),grad(p1)");
 
   set_variable_name(3, "p1");
@@ -111,6 +111,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
   if (index == 2)
     {
       //Gradient of Hydrostatic Stress
+      ScalarValue S = variable_list.template get_value<ScalarValue>(1);
       ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(1);
       //Overpotential Field
       //ScalarValue react = variable_list.template get_value<ScalarValue>(2);
@@ -130,7 +131,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
       ScalarValue dt = this->get_timestep();
       ScalarValue C_term1 = (diffusivity/p) * (px * Cx);
       ScalarValue C_term2 = -px/p * Sx * diffusivity * (omega * C)/(R * Temp);
-      ScalarValue C_term3 = (px_mag/p) * i_0/F * (std::exp(-0.5 * del_phi) * std::sqrt(C_ref/C) - std::exp(0.5 * del_phi) * std::sqrt(C/C_ref)); //reaction rate
+      ScalarValue C_term3 = (px_mag/p) * i_0/F * (std::exp(-0.5 * del_phi) * std::exp(0.5 * omega * S) * std::sqrt(C_ref/C) - 
+                              std::exp(0.5 * del_phi) * std::exp(-0.5 * omega * S) * std::sqrt(C/C_ref)); //reaction rate
       ScalarGrad Cx_term1 = -diffusivity * Cx;
       ScalarGrad Cx_term2 = diffusivity * (omega * C)/(R * Temp) * Sx;
       ScalarValue eq_C = C_old - C + (dt * (C_term1 + C_term2 + C_term3));
@@ -165,6 +167,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
       ScalarValue change_C = variable_list.template get_value<ScalarValue>(2, Change);
       ScalarGrad change_Cx = variable_list.template get_gradient<ScalarGrad>(2, Change);
       //Gradient of Hydrostatic Stress
+      ScalarValue S = variable_list.template get_value<ScalarValue>(1);
       ScalarGrad Sx = variable_list.template get_gradient<ScalarGrad>(1);
       //Order Parameter, needed but not changed
       ScalarValue p = variable_list.template get_value<ScalarValue>(3);
@@ -181,7 +184,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
       ScalarValue LHS_C_term1 = -(diffusivity/p) * (px * change_Cx);
       ScalarValue LHS_C_term2 = (omega * diffusivity * change_C)/(R * Temp * p) * (px * Sx);
       //ScalarValue LHS_C_term3 = (px_mag/p) * kc * diffusivity * change_C; //No longer included due to change in boudnary condition
-      ScalarValue LHS_C_term3 = -(px_mag/p) * i_0/F * std::sqrt(C_ref/C) * (2 * std::exp(-0.5 * del_phi) + 0.5 * std::exp(0.5 * del_phi)) * change_C;
+      ScalarValue LHS_C_term3 = -(px_mag/p) * i_0/F * std::sqrt(C_ref/C) * (2.0 * std::exp(-0.5 * del_phi) * std::exp(0.5 * omega * S) + 0.5 * std::exp(0.5 * del_phi) * std::exp(-0.5 * omega * S)) * change_C;
       ScalarGrad LHS_Cx_term1 = diffusivity * change_Cx;
       ScalarGrad LHS_Cx_term2 = (diffusivity * omega)/(R * Temp) * (Sx * change_C);
       ScalarValue eq_change_C = change_C + dt * (LHS_C_term1 + LHS_C_term2 + LHS_C_term3);
