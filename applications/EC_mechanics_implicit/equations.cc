@@ -131,8 +131,8 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_rhs(
       ScalarValue dt = this->get_timestep();
       ScalarValue C_term1 = (diffusivity/p) * (px * Cx);
       ScalarValue C_term2 = -px/p * Sx * diffusivity * (omega * C)/(R * Temp);
-      ScalarValue C_term3 = (px_mag/p) * i_0/F * (std::exp(-0.5 * del_phi) * std::exp(0.5 * omega * S) * std::sqrt(C_ref/C) - 
-                              std::exp(0.5 * del_phi) * std::exp(-0.5 * omega * S) * std::sqrt(C/C_ref)); //reaction rate
+      ScalarValue C_term3 = (px_mag/p) * i_0/F * (std::exp(-0.5 * del_phi) * std::exp((-0.5 * omega * S)/(R * Temp)) * std::sqrt(C_ref/C) - 
+                              std::exp(0.5 * del_phi) * std::exp((0.5 * omega * S)/(R * Temp)) * std::sqrt(C/C_ref)); //reaction rate
       ScalarGrad Cx_term1 = -diffusivity * Cx;
       ScalarGrad Cx_term2 = diffusivity * (omega * C)/(R * Temp) * Sx;
       ScalarValue eq_C = C_old - C + (dt * (C_term1 + C_term2 + C_term3));
@@ -184,7 +184,7 @@ CustomPDE<dim, degree, number>::compute_nonexplicit_lhs(
       ScalarValue LHS_C_term1 = -(diffusivity/p) * (px * change_Cx);
       ScalarValue LHS_C_term2 = (omega * diffusivity * change_C)/(R * Temp * p) * (px * Sx);
       //ScalarValue LHS_C_term3 = (px_mag/p) * kc * diffusivity * change_C; //No longer included due to change in boudnary condition
-      ScalarValue LHS_C_term3 = -(px_mag/p) * i_0/F * std::sqrt(C_ref/C) * (2.0 * std::exp(-0.5 * del_phi) * std::exp(0.5 * omega * S) + 0.5 * std::exp(0.5 * del_phi) * std::exp(-0.5 * omega * S)) * change_C;
+      ScalarValue LHS_C_term3 = -(px_mag/p) * i_0/F * std::sqrt(C_ref/C) * (2.0 * std::exp(-0.5 * del_phi) * std::exp((-0.5 * omega * S)/(R * Temp)) + 0.5 * std::exp(0.5 * del_phi) * std::exp((0.5 * omega * S)/(R * Temp))) * change_C;
       ScalarGrad LHS_Cx_term1 = diffusivity * change_Cx;
       ScalarGrad LHS_Cx_term2 = (diffusivity * omega)/(R * Temp) * (Sx * change_C);
       ScalarValue eq_change_C = change_C + dt * (LHS_C_term1 + LHS_C_term2 + LHS_C_term3);
